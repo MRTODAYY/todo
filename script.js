@@ -1,0 +1,101 @@
+const form = document.getElementById("registration-form");
+const username = document.getElementById("username");
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
+
+
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const isRequiredValid = checkRequired([username, email, password, confirmPassword]);
+  let isFormValid = isRequiredValid;
+
+  if (isRequiredValid) {
+    const isUsernameValid = checkLength(username, 3, 15);
+    const isEmailValid = checkEmail(email);
+    const isPasswordValid = checkLength(password, 6, 25);
+    const isPasswordsMatch = checkPasswordsMatch(password, confirmPassword);
+
+    isFormValid = isUsernameValid && isEmailValid && isPasswordValid && isPasswordsMatch;
+  }
+
+  if (isFormValid) {
+    alert("Registration successful!");
+    form.reset();
+    document.querySelectorAll(".form-item").forEach((item) => {
+      item.className = "form-item";
+    });
+  }
+});
+
+// 0、检查每个输入是否有输入值
+function checkRequired(inputArray) {
+  let isValid = true;
+
+  inputArray.forEach((input) => {
+    if (input.value.trim() === "") {
+      showError(input, `${formatFieldName(input)} is required`);
+      isValid = false;
+    } else {
+      showSuccess(input);
+    }
+  });
+
+  return isValid;
+}
+
+// 1、3、检查长度是否在 min 与 max 之间
+function checkLength(input, min, max) {
+  if (input.value.length < min) {
+    showError(input, `${formatFieldName(input)} must be at least ${min} characters.`);
+    return false;
+  } else if (input.value.length > max) {
+    showError(input, `${formatFieldName(input)} must be less than ${max} characters.`);
+    return false;
+  } else {
+    showSuccess(input);
+    return true;
+  }
+}
+
+// 2、用正则表达式检查 email 是否有效
+function checkEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (emailRegex.test(email.value.trim())) {
+    showSuccess(email);
+    return true;
+  } else {
+    showError(email, "Email is not valid");
+    return false;
+  }
+}
+
+// 4、检查两次密码是否一致
+function checkPasswordsMatch(input1, input2) {
+  if (input1.value !== input2.value) {
+    showError(input2, "Passwords do not match");
+    return false;
+  }
+  return true;
+}
+
+// Format field name with proper capitalization
+function formatFieldName(input) {
+  // input id: username -> Username
+  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
+}
+
+// 显示错误信息
+function showError(input, message) {
+  const formItem = input.parentElement;
+  formItem.className = "form-item error";
+  const small = formItem.querySelector("small");
+  small.innerText = message;
+}
+
+// 显示正确状态
+function showSuccess(input) {
+  const formItem = input.parentElement;
+  formItem.className = "form-item success";
+}
